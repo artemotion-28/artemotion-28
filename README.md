@@ -84,6 +84,25 @@ A real instance from the training data:
 The same painting carries captions from native speakers of all 28 languages,
 and they do not always agree — that disagreement is the subject of ST3.
 
+### Submission format
+
+A `.zip` containing **both** files at the top level:
+
+```
+predictions_text.csv          predictions_multimodal.csv
+```
+
+Each with the header `id,label`, covering every id in the test file:
+
+```csv
+id,label
+st1_000000,positive
+st1_000001,negative
+```
+
+`label` accepts `positive`/`negative` or `1`/`0`. A submission missing either
+file is rejected — both runs are required.
+
 ## ST2: Modality Contribution Prediction
 
 Given a **target language** and an **artwork image**, predict whether
@@ -112,6 +131,55 @@ boundary.
 > language set is announced with the training data; only their labels stay
 > confidential until evaluation.
 
+### Example
+
+**One prediction per language, not per instance.** There are only 28 labels in
+the whole subtask, so think of it as 28 data points, not 160,000.
+
+*At training time* you are given the announced training languages **with their
+ΔFusion already computed**, plus all their images and captions. These are real
+values from the released baseline:
+
+| Language | n_train | mean text confidence | ΔFusion | `fusion_positive` |
+|---|---|---|---|---|
+| Tagalog | 6,568 | 0.979 | **+0.0358** | **1** |
+| Hindi | 6,529 | 0.988 | **+0.0273** | **1** |
+| English | 5,543 | 0.998 | **+0.0143** | **1** |
+| Thai | 4,137 | 0.987 | −0.0114 | 0 |
+| IsiXhosa | 1,876 | 0.973 | −0.0666 | 0 |
+| Emakhuwa | 1,749 | 0.974 | −0.0703 | 0 |
+| IsiNdebele | 2,033 | 0.975 | **−0.0976** | **0** |
+
+A pattern is already visible: the languages where vision *helps* tend to have
+more training data, and the worst ΔFusion values sit with the smallest
+languages. In our baseline, ΔFusion correlates with per-language data volume
+(r = 0.63) and text-only strength (r = 0.55), but **not** with vision quality
+(r = 0.014 against an image-only classifier). Learning that relationship — from
+whatever signals you can measure — is the task.
+
+*At test time* you get a **held-out language you have never seen a label for**,
+along with its images and captions, and you predict whether fusion helps:
+
+```
+Given:   language = Kazakh, plus its artworks and captions
+Predict: does multimodal fusion beat text-only for Kazakh?
+Answer:  fusion_positive = 0  (and optionally delta_fusion = -0.03)
+```
+
+### Submission format
+
+A `.zip` containing `predictions.csv`, one row per held-out language:
+
+```csv
+language,fusion_positive,delta_fusion
+Kazakh,0,-0.0282
+Urdu,0,-0.0265
+Tagalog,1,0.0358
+```
+
+`delta_fusion` is **optional** — it is scored with MAE as a secondary metric and
+does not affect your primary ranking.
+
 ## ST3: Cross-Cultural Sentiment Divergence Prediction
 
 Given an **artwork image** and the **source-language sentiment distribution
@@ -127,6 +195,69 @@ interpretation rather than classify sentiment within one language.
 so every evaluated distribution is statistically meaningful rather than a single
 noisy vote. This yields **16,868 eligible pairs** across 25 languages — see the
 per-language counts [below](#class-distribution-per-language).
+
+### Example
+
+Take Vasily Perov's *Children Sleeping* (1870), a real painting in the dataset.
+Here is how native speakers of five languages actually labelled it:
+
+| Language | Annotators | Emotions given | `p_positive` |
+|---|---|---|---|
+| English | 5 | awe, awe, awe, awe, contentment | **1.00** |
+| Hausa | 5 | contentment, contentment, excitement, excitement, sadness | **0.80** |
+| Igbo | 5 | contentment, contentment, awe, excitement, sadness | **0.80** |
+| Korean | 5 | contentment, sadness, sadness, sadness, disgust | **0.20** |
+| Swahili | 5 | sadness, sadness, sadness, sadness, fear | **0.00** |
+
+The same image, read as *peaceful* by English annotators and as *distressing*
+by Swahili annotators. Their captions show why:
+
+> **English** (awe): "The total relaxation on the child's face show just how peaceful her sleep is and how safe she feels…"
+>
+> **Swahili** (fear): "wamelala kwa sakafu, na baridi kali wako hali hatari ya kuwa wagonjwa"
+> — *approximate gloss: they are sleeping on the floor, and in the bitter cold they are in danger of falling ill*
+
+One group sees a child safe at rest; the other sees children on a cold floor at
+risk of illness. **Predicting that shift is the whole subtask.**
+
+*What you are given* — the source distribution and the target language, but not
+the target distribution:
+
+```
+painting        = vasily-perov_children-sleeping-1870
+source_language = English      source_p_positive = 1.00
+target_language = Swahili      target_p_positive = ???
+```
+
+*What you predict* — the proportion of **target-language** annotators who
+responded positively:
+
+```
+p_positive = 0.15     (gold for this triple is 0.00)
+```
+
+Note the target is a **proportion, not a label**. `0.80` means "4 of 5
+annotators responded positively" — Hausa and Igbo above are genuine partial
+splits, not noise. Predicting `1.0` or `0.0` everywhere throws away most of the
+available credit, since scoring compares full distributions.
+
+Copying the source distribution unchanged is the "no cultural shift" baseline.
+It scores **JSD 0.099** on this data — a legitimate starting point, and the
+number to beat.
+
+### Submission format
+
+A `.zip` containing `predictions.csv`, one row per triple in the test file:
+
+```csv
+painting,source_language,target_language,p_positive
+vasily-perov_children-sleeping-1870,English,Swahili,0.15
+vasily-perov_children-sleeping-1870,English,Hausa,0.72
+mark-rothko_no-17-1961(1),English,Tamil,0.64
+```
+
+`p_positive` is a float in `[0, 1]`; `p_negative` is implied as `1 − p_positive`.
+Every triple in the test file must appear exactly once.
 
 ---
 
@@ -270,8 +401,9 @@ deduplicate, or build your own cross-validation folds — the released split is
 disjoint at the painting level, and grouping on `image_id` would not preserve
 that.
 
-**Normalise language names before grouping.** `arabic`, `chinese` and `english`
-are lowercase in the CSV; the other 25 are capitalised.
+**Language names are capitalised consistently** (`Arabic`, `Chinese`,
+`English`, …) and match exactly the names used in the competition input files
+and expected in submissions, so no normalisation is needed.
 
 **Exclude the ambiguous emotions.** Filter out `something else` and `other`
 before mapping to binary sentiment, or your class counts will not match the
