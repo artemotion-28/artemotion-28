@@ -1,0 +1,54 @@
+ArtEmotion-28 public data release
+=================================
+
+This repository contains two kinds of material, under different terms.
+
+
+1. ANNOTATIONS  --  Creative Commons Attribution 4.0 International (CC BY 4.0)
+------------------------------------------------------------------------------
+
+Everything under annotations/ -- captions, emotion labels, split assignments
+and accompanying metadata -- is released by the ArtEmotion-28 task organizers
+under the Creative Commons Attribution 4.0 International License.
+
+You are free to:
+  * Share  -- copy and redistribute the material in any medium or format
+  * Adapt  -- remix, transform, and build upon the material for any purpose,
+              including commercially
+
+Under the following terms:
+  * Attribution -- You must give appropriate credit, provide a link to the
+    license, and indicate if changes were made.
+
+Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
+Summary:           https://creativecommons.org/licenses/by/4.0/
+
+Attribution should cite the ArtELingo-28 dataset paper (see README.md) and
+this shared task.
+
+
+2. IMAGES  --  NOT RELICENSED
+------------------------------------------------------------------------------
+
+The paintings under images/ are works by third parties, sourced from WikiArt
+(https://www.wikiart.org).
+
+These images are NOT covered by the CC BY 4.0 grant above. The ArtEmotion-28
+organizers do not claim copyright in them and do not relicense them. They are
+mirrored in this repository solely as a convenience for shared-task
+participants, so that each team does not have to retrieve them independently.
+
+All rights in the images remain with their respective rights holders. Anyone
+intending to use these images beyond research on this shared task should
+consult the terms applying to each work at its source.
+
+If you are a rights holder and object to an image being mirrored here, please
+contact the task organizers and it will be removed.
+
+
+3. NO WARRANTY
+------------------------------------------------------------------------------
+
+The organizers and their affiliated institutions provide no warranties as to
+the correctness or completeness of this dataset, and accept no liability
+arising from its access or use.
