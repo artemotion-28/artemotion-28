@@ -162,9 +162,14 @@ along with its images and captions, and you predict whether fusion helps:
 
 ```
 Given:   language = Kazakh, plus its artworks and captions
-Predict: does multimodal fusion beat text-only for Kazakh?
-Answer:  fusion_positive = 0  (and optionally delta_fusion = -0.03)
+Predict: by how much does multimodal fusion beat (or lose to) text-only?
+Answer:  delta_fusion = -0.03     <- ranked on this
+         fusion_positive = 0      <- its sign, scored secondarily
 ```
+
+Predict the **magnitude**, not just the direction. Estimating ΔFusion ≈ −0.03
+and ΔFusion ≈ −0.09 both give `fusion_positive = 0`, but they are very
+different answers, and the ranking metric can tell them apart.
 
 ### Submission format
 
@@ -177,8 +182,28 @@ Urdu,0,-0.0265
 Tagalog,1,0.0358
 ```
 
-`delta_fusion` is **optional** — it is scored with MAE as a secondary metric and
-does not affect your primary ranking.
+**`delta_fusion` is required.** MAE on it is the primary ranking metric: with
+only a handful of held-out languages, the binary sign metric admits very few
+distinct scores — one flipped language moves macro-F1 by more than 0.13 — so
+systems are ranked on the continuous magnitude instead. The sign is still
+scored, as a secondary metric.
+
+### Reference ΔFusion values
+
+`baselines/st2_delta_fusion_reference.csv` gives the per-language ΔFusion from
+the reference architecture, with 95% bootstrap confidence intervals:
+
+```csv
+language,n_val,f1_text,f1_multi,delta_fusion,ci_low,ci_high,sign_determined,fusion_positive
+Tagalog,284,0.840683,0.876522,0.035839,0.000494,0.072260,1,1
+Hindi,287,0.859563,0.886846,0.027283,-0.005706,0.060051,0,1
+```
+
+`sign_determined` is 1 when the 95% interval excludes zero. **Read this column
+before trusting a label.** Many languages sit close to zero relative to their
+interval, which is precisely why MAE on the magnitude — not the sign — decides
+the ranking. At release, this file covers the announced training languages
+only; the held-out test languages are withheld until evaluation.
 
 ## ST3: Cross-Cultural Sentiment Divergence Prediction
 
@@ -294,6 +319,7 @@ The repository is ~130 MB and needs no Git LFS.
 ```
 annotations/artelingo28_train_val.csv   173,745 annotations (train + val)
 images/                                 1,658 WikiArt paintings
+baselines/st2_delta_fusion_reference.csv  per-language ΔFusion + 95% CIs
 scripts/verify_dataset.py               integrity checks
 ```
 
@@ -416,7 +442,7 @@ table above.
 | Subtask | Primary metric | Also reported |
 |---|---|---|
 | **ST1** | **F1-Macro**, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy |
-| **ST2** | **F1-Macro** over the two outcome classes | MAE of predicted ΔFusion magnitude |
+| **ST2** | **MAE** of the predicted ΔFusion magnitude (lower is better) | F1-Macro over the two outcome classes |
 | **ST3** | **Jensen–Shannon Divergence** (lower is better) | Pearson correlation of cross-lingual sentiment shift |
 
 **ST1** rankings use the **multimodal** run. Every language contributes equally
