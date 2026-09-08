@@ -140,15 +140,21 @@ the whole subtask, so think of it as 28 data points, not 160,000.
 ΔFusion already computed**, plus all their images and captions. These are real
 values from the released baseline:
 
-| Language | n_train | mean text confidence | ΔFusion | `fusion_positive` |
-|---|---|---|---|---|
-| Tagalog | 6,568 | 0.979 | **+0.0358** | **1** |
-| Hindi | 6,529 | 0.988 | **+0.0273** | **1** |
-| English | 5,543 | 0.998 | **+0.0143** | **1** |
-| Thai | 4,137 | 0.987 | −0.0114 | 0 |
-| IsiXhosa | 1,876 | 0.973 | −0.0666 | 0 |
-| Emakhuwa | 1,749 | 0.974 | −0.0703 | 0 |
-| IsiNdebele | 2,033 | 0.975 | **−0.0976** | **0** |
+| Language | Train rows | ΔFusion | `fusion_positive` |
+|---|---|---|---|
+| Tagalog | 6,506 | **+0.0358** | **1** |
+| Hindi | 6,497 | **+0.0273** | **1** |
+| English | 5,481 | **+0.0143** | **1** |
+| Thai | 4,077 | −0.0114 | 0 |
+| IsiNdebele | 2,015 | **−0.0976** | **0** |
+| IsiXhosa | 1,850 | −0.0666 | 0 |
+| Emakhuwa | 1,734 | −0.0703 | 0 |
+
+`Train rows` is the language's binary-mappable training count, which you can
+compute yourself from the annotations. `ΔFusion` and `fusion_positive` come from
+the reference baseline — see
+[`baselines/st2_delta_fusion_reference.csv`](baselines/st2_delta_fusion_reference.csv)
+for all 28 languages with confidence intervals.
 
 A pattern is already visible: the languages where vision *helps* tend to have
 more training data, and the worst ΔFusion values sit with the smallest
