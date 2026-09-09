@@ -25,7 +25,7 @@ emotional responses to WikiArt paintings from native speakers of 28 languages.
 # Contents
 
 - [Subtasks](#subtasks)
-  - [ST1: Cross-Cultural Multimodal Sentiment Classification](#st1-cross-cultural-multimodal-sentiment-classification)
+  - [ST1: Cross-Cultural Emotion Prediction](#st1-cross-cultural-emotion-prediction)
   - [ST2: Cross-Cultural Sentiment Divergence Prediction](#st2-cross-cultural-sentiment-divergence-prediction)
 - [Languages](#languages)
 - [Getting the Data](#getting-the-data)
@@ -51,11 +51,18 @@ emotional responses to WikiArt paintings from native speakers of 28 languages.
 Two subtasks. **You may enter one or both**, and within a subtask you may
 work on any subset of the 28 languages.
 
-## ST1: Cross-Cultural Multimodal Sentiment Classification
+## ST1: Cross-Cultural Emotion Prediction
 
 Given an **artwork image** and a **native-speaker caption** in a target
-language, predict the binary sentiment (**positive** / **negative**) of the
-caption.
+language, predict **which of eight emotions** the caption expresses:
+
+| | | | |
+|---|---|---|---|
+| amusement | awe | contentment | excitement |
+| anger | disgust | fear | sadness |
+
+Instances annotated *something else* / *other* are excluded, leaving **160,504**
+labelled instances.
 
 **You must submit two runs: a text-only run and a multimodal (vision + text)
 run.** Requiring both is what makes the task measure the actual contribution of
@@ -77,8 +84,7 @@ A real instance from the training data:
 | `art_style` | `Color_Field_Painting` |
 | `language` | English |
 | `caption` | "The light and dark shades together remind me of the ups and downs of life and finding the balance" |
-| `emotion` | contentment |
-| → **sentiment** | **positive** |
+| → **`emotion`** | **contentment** &nbsp;← *this is the ST1 label* |
 
 The same painting carries captions from native speakers of all 28 languages,
 and they do not always agree — that disagreement is the subject of ST2.
@@ -95,12 +101,12 @@ Each with the header `id,label`, covering every id in the test file:
 
 ```csv
 id,label
-st1_000000,positive
-st1_000001,negative
+st1_000000,awe
+st1_000001,contentment
 ```
 
-`label` accepts `positive`/`negative` or `1`/`0`. A submission missing either
-file is rejected — both runs are required.
+`label` must be one of the eight emotion names, lowercase. A submission missing
+either file is rejected — both runs are required.
 
 ## ST2: Cross-Cultural Sentiment Divergence Prediction
 
@@ -246,21 +252,27 @@ Each row is one annotator's response to one painting, in one language.
 
 To load an image: `images/<image_name>`.
 
-### Emotion labels → binary sentiment
+### Labels: how each subtask uses them
 
-Annotators chose from nine emotion categories. For this task they map to binary
-sentiment following emotion valence theory (Russell, 1980):
+Annotators chose from nine emotion categories. The two subtasks use them
+differently:
+
+**ST1 predicts the emotion itself** — eight classes (*something else* / *other*
+excluded), leaving **160,504** labelled instances of the 173,745 total. The
+classes are imbalanced, from contentment at 32.6% down to anger at 2.2%, which
+is why **F1-Macro** is the metric rather than accuracy.
+
+**ST2 aggregates annotators into a binary sentiment distribution**, mapping the
+eight to valence following Russell (1980):
 
 | Sentiment | Emotions |
 |---|---|
 | **positive** | amusement, awe, contentment, excitement |
 | **negative** | anger, disgust, fear, sadness |
-| *excluded* | something else, other |
 
-Excluding the two ambiguous categories leaves **160,504** binary-mappable
-annotations of the 173,745 total. Overall class balance is **69.0% positive /
-31.0% negative**, which is why **F1-Macro computed per language** is the primary
-ST1 metric rather than accuracy.
+The binary reduction is necessary for ST2 because most (image, language) pairs
+have five annotators — enough to estimate two bins, not eight. Overall balance
+is 69.0% positive / 31.0% negative.
 
 ### Splits
 
@@ -327,9 +339,9 @@ that.
 `English`, …) and match exactly the names used in the competition input files
 and expected in submissions, so no normalisation is needed.
 
-**Exclude the ambiguous emotions.** Filter out `something else` and `other`
-before mapping to binary sentiment, or your class counts will not match the
-table above.
+**Exclude the ambiguous emotions.** Filter out `something else` and `other` —
+they are not ST1 classes and are excluded from ST2's distributions too, so
+leaving them in will make your class counts disagree with the table above.
 
 ---
 
@@ -337,12 +349,12 @@ table above.
 
 | Subtask | Primary metric | Also reported |
 |---|---|---|
-| **ST1** | **F1-Macro**, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy |
+| **ST1** | **F1-Macro** over the eight emotion classes, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy |
 | **ST2** | **Jensen–Shannon Divergence** (lower is better) | Pearson correlation of cross-lingual sentiment shift |
 
-**ST1** rankings use the **multimodal** run. Every language contributes equally
-to the macro-average regardless of how many instances it has, so high-resource
-languages cannot dominate the ranking — consistent with the task's
+**ST1** rankings use the **multimodal** run. Every language contributes equally to the macro-average regardless of how many
+instances it has, and every emotion contributes equally regardless of how rare
+it is, so neither high-resource languages nor common emotions dominate — consistent with the task's
 cross-cultural-equity motivation.
 
 **ST2** aggregates JSD hierarchically: mean JSD per (source, target) language
@@ -358,7 +370,7 @@ data.
 
 | Subtask | Baseline | Result |
 |---|---|---|
-| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | macro-F1 **0.87** text-only, **0.85** multimodal |
+| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | reference scores released with the training data |
 | **ST2** | Blends the source distribution with a target-language prior, tuned to minimize JSD | mean JSD **0.08** vs. **0.10** for single-signal baselines |
 
 
