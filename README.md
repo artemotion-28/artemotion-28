@@ -2,7 +2,7 @@
 
 ### Cross-Cultural Multimodal Sentiment Analysis Across 28 Languages
 
-[Task Website](https://artemotion-28.github.io/) | [Subtasks](https://artemotion-28.github.io/tasks.html) | [How to Participate](https://artemotion-28.github.io/participation.html) | [Important Dates](https://artemotion-28.github.io/dates.html) | [Ask a Question](https://github.com/artemotion-28/data-public/issues)
+[Subtasks](#subtasks) | [Get the Data](#getting-the-data) | [How to Participate](#how-to-participate) | [Important Dates](#important-dates) | [Ask a Question](https://github.com/artemotion-28/artemotion-28/issues)
 
 ---
 
@@ -130,8 +130,8 @@ Of the 572 ordered language pairs in the data:
 
 | | Pairs | |
 |---|---|---|
-| **Training** | 251 | supervision provided, with both distributions |
-| **Development** | 150 | held out, released for the dev phase |
+| **Training** | 250 | supervision provided, with both distributions |
+| **Development** | 151 | held out, released for the dev phase |
 | **Evaluation** | 171 | held out, announced at evaluation |
 
 Development and evaluation use **different** pairs, so tuning on dev pairs does
@@ -238,8 +238,8 @@ sole representative outside those regions.
 # Getting the Data
 
 ```bash
-git clone https://github.com/artemotion-28/data-public.git
-cd data-public
+git clone https://github.com/artemotion-28/artemotion-28.git
+cd artemotion-28
 python3 scripts/verify_dataset.py     # optional integrity check
 ```
 
@@ -255,7 +255,7 @@ scripts/verify_dataset.py               integrity checks
 (10 January 2027). The 342 remaining paintings are held back with it.
 
 **Competition registration** will be hosted on Codabench. The link is posted on
-the [task website](https://artemotion-28.github.io/) and announced here when
+this repository and announced here when
 registration opens.
 
 ---
@@ -418,12 +418,31 @@ official [SemEval-2027 timeline](https://semeval.github.io/SemEval2027/).
 | Camera-ready due *(tentative)* | April 2027 |
 | SemEval-2027 workshop | Summer 2027 |
 
+### Phases
+
+**Data release (Aug–Sep 2026).** Sample data on 8 August, full training data on
+8 September, covering both subtasks across the 28 languages, with baseline code.
+
+**Development (Sep 2026 – Jan 2027).** Build and refine your systems. Results
+are visible only to your team and the leaderboard stays hidden, so an early
+score cannot discourage anyone. Remember ST1 requires *both* a text-only and a
+multimodal run.
+
+**Evaluation (10–31 Jan 2027).** Test data is released and you submit for the
+subtasks you entered. Only your final submission counts.
+
+**System papers (Feb 2027).** Required for inclusion in the official ranking,
+and peer-reviewed by other participating teams.
+
+**Workshop (Summer 2027).** Results presented at SemEval-2027, co-located with a
+major NLP conference.
+
 ---
 
 # How to Participate
 
 1. **Register** on Codabench when registration opens (link posted on the
-   [task website](https://artemotion-28.github.io/)).
+   this repository).
 2. **Choose your subtasks** — one or both.
 3. **Choose your languages** — any subset of the 28.
 4. **Download the data** from this repository.
@@ -513,8 +532,8 @@ cultures, negative results are arguably the point.
 
 # Communication
 
-- **Questions about the data or task:** [open an issue](https://github.com/artemotion-28/data-public/issues) in this repository.
-- **Announcements:** posted on the [task website](https://artemotion-28.github.io/).
+- **Questions about the data or task:** [open an issue](https://github.com/artemotion-28/artemotion-28/issues) in this repository.
+- **Announcements:** posted on this repository.
 
 ---
 
@@ -575,6 +594,9 @@ organizers adhere to the [ACL Code of Ethics](https://www.aclweb.org/portal/cont
 labels, splits, metadata) is released by the ArtEmotion-28 organizers under the
 [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
 Share and adapt freely, including commercially, with attribution.
+
+All task resources will be archived on **Zenodo** after the task concludes, so
+the benchmark remains available independently of this repository.
 
 **Images — not relicensed.** The paintings in `images/` are third-party works
 sourced from [WikiArt](https://www.wikiart.org). They are **not** covered by the
