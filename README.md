@@ -124,6 +124,32 @@ so every evaluated distribution is statistically meaningful rather than a single
 noisy vote. This yields **16,868 eligible pairs** across 25 languages — see the
 per-language counts [below](#class-distribution-per-language).
 
+### You are evaluated on unseen language pairs
+
+Of the 572 ordered language pairs in the data:
+
+| | Pairs | |
+|---|---|---|
+| **Training** | 251 | supervision provided, with both distributions |
+| **Development** | 150 | held out, released for the dev phase |
+| **Evaluation** | 171 | held out, announced at evaluation |
+
+Development and evaluation use **different** pairs, so tuning on dev pairs does
+not make the evaluation pairs seen.
+
+Every held-out pair's two languages still appear in training via *other* pairs —
+this is an unseen **pair**, not an unseen language. You will have seen Swahili
+and Tamil; you will not have seen `Swahili → Tamil`.
+
+Paintings are held out as well: training distributions come from the train
+split, evaluation from artworks you have never seen. Without that, a painting's
+target distribution could be looked up from a different training pair on the
+same painting.
+
+Together these make the subtask a test of modelling cultural shift rather than
+recall — and they are why a model trained on the entire published dataset gains
+little here: the evaluation distributions have never been released.
+
 ### Example
 
 Take Vasily Perov's *Children Sleeping* (1870), a real painting in the dataset.
