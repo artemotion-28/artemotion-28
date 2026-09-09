@@ -26,8 +26,7 @@ emotional responses to WikiArt paintings from native speakers of 28 languages.
 
 - [Subtasks](#subtasks)
   - [ST1: Cross-Cultural Multimodal Sentiment Classification](#st1-cross-cultural-multimodal-sentiment-classification)
-  - [ST2: Modality Contribution Prediction](#st2-modality-contribution-prediction)
-  - [ST3: Cross-Cultural Sentiment Divergence Prediction](#st3-cross-cultural-sentiment-divergence-prediction)
+  - [ST2: Cross-Cultural Sentiment Divergence Prediction](#st2-cross-cultural-sentiment-divergence-prediction)
 - [Languages](#languages)
 - [Getting the Data](#getting-the-data)
 - [Dataset Description](#dataset-description)
@@ -49,8 +48,8 @@ emotional responses to WikiArt paintings from native speakers of 28 languages.
 
 # Subtasks
 
-Three subtasks. **You may enter one, two, or all three**, and within a subtask
-you may work on any subset of the 28 languages.
+Two subtasks. **You may enter one or both**, and within a subtask you may
+work on any subset of the 28 languages.
 
 ## ST1: Cross-Cultural Multimodal Sentiment Classification
 
@@ -82,7 +81,7 @@ A real instance from the training data:
 | → **sentiment** | **positive** |
 
 The same painting carries captions from native speakers of all 28 languages,
-and they do not always agree — that disagreement is the subject of ST3.
+and they do not always agree — that disagreement is the subject of ST2.
 
 ### Submission format
 
@@ -103,115 +102,7 @@ st1_000001,negative
 `label` accepts `positive`/`negative` or `1`/`0`. A submission missing either
 file is rejected — both runs are required.
 
-## ST2: Modality Contribution Prediction
-
-Given a **target language** and an **artwork image**, predict whether
-multimodal fusion will *improve* sentiment classification over a text-only
-baseline for that language.
-
-This operationalizes a question that matters for real deployments: **when should
-a multimodal system trust its vision encoder?**
-
-The gold label comes from the per-language fusion delta
-
-```
-ΔFusion(ℓ) = F1-Macro_multi(ℓ) − F1-Macro_text(ℓ)
-fusion_positive(ℓ) = 1 if ΔFusion(ℓ) > 0 else 0
-```
-
-computed with a **fixed reference architecture**: the released fine-tuned
-XLM-R (text) + ViT (image) concatenation-fusion baseline. The label is anchored
-to that one architecture; a different baseline could move languages across the
-boundary.
-
-> **ST2's test split holds out a disjoint set of languages entirely.** Unlike
-> ST1 and ST3, which hold out instances within languages you have seen, ST2
-> evaluates on languages absent from training — otherwise a system could
-> memorize each training language's label instead of predicting it. The held-out
-> language set is announced with the training data; only their labels stay
-> confidential until evaluation.
-
-### Example
-
-**One prediction per language, not per instance.** There are only 28 labels in
-the whole subtask, so think of it as 28 data points, not 160,000.
-
-*At training time* you are given the announced training languages **with their
-ΔFusion already computed**, plus all their images and captions. These are real
-values from the released baseline:
-
-| Language | Train rows | ΔFusion | `fusion_positive` |
-|---|---|---|---|
-| Tagalog | 6,506 | **+0.0358** | **1** |
-| Hindi | 6,497 | **+0.0273** | **1** |
-| English | 5,481 | **+0.0143** | **1** |
-| Thai | 4,077 | −0.0114 | 0 |
-| IsiNdebele | 2,015 | **−0.0976** | **0** |
-| IsiXhosa | 1,850 | −0.0666 | 0 |
-| Emakhuwa | 1,734 | −0.0703 | 0 |
-
-`Train rows` is the language's binary-mappable training count, which you can
-compute yourself from the annotations. `ΔFusion` and `fusion_positive` come from
-the reference baseline — see
-[`baselines/st2_delta_fusion_reference.csv`](baselines/st2_delta_fusion_reference.csv)
-for all 28 languages with confidence intervals.
-
-A pattern is already visible: the languages where vision *helps* tend to have
-more training data, and the worst ΔFusion values sit with the smallest
-languages. In our baseline, ΔFusion correlates with per-language data volume
-(r = 0.63) and text-only strength (r = 0.55), but **not** with vision quality
-(r = 0.014 against an image-only classifier). Learning that relationship — from
-whatever signals you can measure — is the task.
-
-*At test time* you get a **held-out language you have never seen a label for**,
-along with its images and captions, and you predict whether fusion helps:
-
-```
-Given:   language = Kazakh, plus its artworks and captions
-Predict: by how much does multimodal fusion beat (or lose to) text-only?
-Answer:  delta_fusion = -0.03     <- ranked on this
-         fusion_positive = 0      <- its sign, scored secondarily
-```
-
-Predict the **magnitude**, not just the direction. Estimating ΔFusion ≈ −0.03
-and ΔFusion ≈ −0.09 both give `fusion_positive = 0`, but they are very
-different answers, and the ranking metric can tell them apart.
-
-### Submission format
-
-A `.zip` containing `predictions.csv`, one row per held-out language:
-
-```csv
-language,fusion_positive,delta_fusion
-Kazakh,0,-0.0282
-Urdu,0,-0.0265
-Tagalog,1,0.0358
-```
-
-**`delta_fusion` is required.** MAE on it is the primary ranking metric: with
-only a handful of held-out languages, the binary sign metric admits very few
-distinct scores — one flipped language moves macro-F1 by more than 0.13 — so
-systems are ranked on the continuous magnitude instead. The sign is still
-scored, as a secondary metric.
-
-### Reference ΔFusion values
-
-`baselines/st2_delta_fusion_reference.csv` gives the per-language ΔFusion from
-the reference architecture, with 95% bootstrap confidence intervals:
-
-```csv
-language,n_val,f1_text,f1_multi,delta_fusion,ci_low,ci_high,sign_determined,fusion_positive
-Tagalog,284,0.840683,0.876522,0.035839,0.000494,0.072260,1,1
-Hindi,287,0.859563,0.886846,0.027283,-0.005706,0.060051,0,1
-```
-
-`sign_determined` is 1 when the 95% interval excludes zero. **Read this column
-before trusting a label.** Many languages sit close to zero relative to their
-interval, which is precisely why MAE on the magnitude — not the sign — decides
-the ranking. At release, this file covers the announced training languages
-only; the held-out test languages are withheld until evaluation.
-
-## ST3: Cross-Cultural Sentiment Divergence Prediction
+## ST2: Cross-Cultural Sentiment Divergence Prediction
 
 Given an **artwork image** and the **source-language sentiment distribution
 across annotators**, predict the **target-language sentiment distribution** for
@@ -325,7 +216,6 @@ The repository is ~130 MB and needs no Git LFS.
 ```
 annotations/artelingo28_train_val.csv   173,745 annotations (train + val)
 images/                                 1,658 WikiArt paintings
-baselines/st2_delta_fusion_reference.csv  per-language ΔFusion + 95% CIs
 scripts/verify_dataset.py               integrity checks
 ```
 
@@ -382,10 +272,10 @@ therefore never appears on both sides of the boundary in a different language.
 
 # Class Distribution Per Language
 
-Binary-mappable annotations only. `ST3-eligible pairs` counts (image, language)
-pairs with ≥ 5 annotators — the subset ST3 evaluates on.
+Binary-mappable annotations only. `ST2-eligible pairs` counts (image, language)
+pairs with ≥ 5 annotators — the subset ST2 evaluates on.
 
-| Language | Region | Train (pos/neg) | Val (pos/neg) | Train | Val | % positive | ST3-eligible pairs |
+| Language | Region | Train (pos/neg) | Val (pos/neg) | Train | Val | % positive | ST2-eligible pairs |
 |---|---|---|---|---|---|---|---|
 | Arabic | Middle East / West Asia | 4,227 / 828 | 246 / 34 | 5,055 | 280 | 83.8% | 564 |
 | Burmese | Southeast Asia | 3,937 / 1,530 | 202 / 92 | 5,467 | 294 | 71.8% | 208 |
@@ -418,9 +308,9 @@ pairs with ≥ 5 annotators — the subset ST3 evaluates on.
 | **Total** | | | | **152,447** | **8,057** | | **16,868** |
 
 Class balance varies widely — from 47.2% positive (Kyrgyz) to 83.8% (Arabic).
-Three languages (IsiNdebele, IsiXhosa, Kazakh) have no ST3-eligible pairs
+Three languages (IsiNdebele, IsiXhosa, Kazakh) have no ST2-eligible pairs
 because no painting reaches 5 annotators in them; they remain fully available
-for ST1 and ST2.
+for ST1.
 
 ---
 
@@ -448,15 +338,14 @@ table above.
 | Subtask | Primary metric | Also reported |
 |---|---|---|
 | **ST1** | **F1-Macro**, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy |
-| **ST2** | **MAE** of the predicted ΔFusion magnitude (lower is better) | F1-Macro over the two outcome classes |
-| **ST3** | **Jensen–Shannon Divergence** (lower is better) | Pearson correlation of cross-lingual sentiment shift |
+| **ST2** | **Jensen–Shannon Divergence** (lower is better) | Pearson correlation of cross-lingual sentiment shift |
 
 **ST1** rankings use the **multimodal** run. Every language contributes equally
 to the macro-average regardless of how many instances it has, so high-resource
 languages cannot dominate the ranking — consistent with the task's
 cross-cultural-equity motivation.
 
-**ST3** aggregates JSD hierarchically: mean JSD per (source, target) language
+**ST2** aggregates JSD hierarchically: mean JSD per (source, target) language
 pair → averaged across each target's eligible source partners → macro-averaged
 across target languages.
 
@@ -464,20 +353,14 @@ across target languages.
 
 # Baselines
 
-Baselines for all three subtasks are implemented and released with the training
+Baselines for both subtasks are implemented and released with the training
 data.
 
 | Subtask | Baseline | Result |
 |---|---|---|
 | **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | macro-F1 **0.87** text-only, **0.85** multimodal |
-| **ST2** | Predicts fusion contribution from per-language training-set size and text-model confidence | F1-Macro **0.67** vs. **0.39** majority-class (leave-one-language-out) |
-| **ST3** | Blends the source distribution with a target-language prior, tuned to minimize JSD | mean JSD **0.08** vs. **0.10** for single-signal baselines |
+| **ST2** | Blends the source distribution with a target-language prior, tuned to minimize JSD | mean JSD **0.08** vs. **0.10** for single-signal baselines |
 
-Per-language ΔFusion ranges from **−0.098** (IsiNdebele) to **+0.036**
-(Tagalog), with **10 of 28** languages fusion-positive. Fusion gain correlates
-with per-language data volume (r = 0.63) and text-only strength (r = 0.55)
-rather than with vision quality (r = 0.014 against an image-only classifier) —
-which is what makes ST2 a non-trivial prediction problem.
 
 ---
 
@@ -503,9 +386,8 @@ official [SemEval-2027 timeline](https://semeval.github.io/SemEval2027/).
 
 1. **Register** on Codabench when registration opens (link posted on the
    [task website](https://artemotion-28.github.io/)).
-2. **Choose your subtasks** — one, two, or all three.
-3. **Choose your languages** — any subset of the 28. Note that ST2's test
-   partition holds out languages entirely.
+2. **Choose your subtasks** — one or both.
+3. **Choose your languages** — any subset of the 28.
 4. **Download the data** from this repository.
 5. **Build your system.** For ST1, remember that *both* a text-only and a
    multimodal run are required.
@@ -550,12 +432,11 @@ access or use.
 
 # FAQs
 
-**Do I have to enter all three subtasks?**
-No. One, two, or all three.
+**Do I have to enter both subtasks?**
+No. One or both.
 
 **Do I have to cover all 28 languages?**
-No, any subset. For ST2, note that the test partition holds out languages
-entirely, so systems there need to generalize to unseen languages.
+No, any subset.
 
 **What exactly do I submit for ST1?**
 Two runs — text-only and multimodal — in a single archive. Both are required.
@@ -576,10 +457,9 @@ Yes, mirrored here for convenience. They are third-party works and are not
 relicensed — see [License](#license). The released data also includes each
 image's source URL.
 
-**Why do some languages have no ST3 pairs?**
-ST3 needs ≥ 5 annotators per (image, language) pair. IsiNdebele, IsiXhosa and
-Kazakh do not reach that threshold for any painting. They are fully available
-for ST1 and ST2.
+**Why do some languages have no ST2 pairs?**
+ST2 needs ≥ 5 annotators per (image, language) pair. IsiNdebele, IsiXhosa and
+Kazakh do not reach that threshold for any painting. They are fully available for ST1.
 
 **When are gold labels released?**
 After the competition ends.
