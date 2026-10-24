@@ -146,6 +146,12 @@ split, evaluation from artworks you have never seen. Without that, a painting's
 target distribution could be looked up from a different training pair on the
 same painting.
 
+Within an evaluation artwork, languages are split at random into **revealed**
+and **hidden**. Revealed languages appear as sources; hidden languages are only
+ever targets, and their distributions appear nowhere in the input. You may use
+*every* revealed distribution for an artwork when predicting any of its targets,
+not only the source named on the row.
+
 Together these make the subtask a test of modelling cultural shift rather than
 recall — and they are why a model trained on the entire published dataset gains
 little here: the evaluation distributions have never been released.
@@ -192,12 +198,17 @@ p_positive = 0.15     (gold for this triple is 0.00)
 
 Note the target is a **proportion, not a label**. `0.80` means "4 of 5
 annotators responded positively" — Hausa and Igbo above are genuine partial
-splits, not noise. Predicting `1.0` or `0.0` everywhere throws away most of the
-available credit, since scoring compares full distributions.
+splits. With five annotators, though, an observed proportion is also a noisy
+sample of the language's true rate, and scoring accounts for that (see
+[Evaluation](#evaluation)): predict your honest estimate of the proportion.
+Predicting `1.0` or `0.0` is heavily penalised whenever even one annotator
+disagrees.
 
 Copying the source distribution unchanged is the "no cultural shift" baseline.
-It scores **JSD 0.099** on this data — a legitimate starting point, and the
-number to beat.
+It scores **1.11 bits** of log loss on the development data — worse than
+predicting 0.5 everywhere (1.00), because a unanimous source becomes an
+overconfident prediction. The released baseline does better; see
+[Baselines](#baselines).
 
 ### Submission format
 
@@ -376,16 +387,32 @@ leaving them in will make your class counts disagree with the table above.
 | Subtask | Primary metric | Also reported |
 |---|---|---|
 | **ST1** | **F1-Macro** over the eight emotion classes, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy |
-| **ST2** | **Jensen–Shannon Divergence** (lower is better) | Pearson correlation of cross-lingual sentiment shift |
+| **ST2** | **Log loss** on the target-language annotator counts, in bits per annotator (lower is better) | Jensen–Shannon Divergence; Pearson correlation of cross-lingual sentiment shift |
 
 **ST1** rankings use the **multimodal** run. Every language contributes equally to the macro-average regardless of how many
 instances it has, and every emotion contributes equally regardless of how rare
 it is, so neither high-resource languages nor common emotions dominate — consistent with the task's
-cross-cultural-equity motivation.
+cross-cultural-equity motivation. Within a language, F1-Macro averages over the
+emotions that occur in that language's gold labels; an emotion with no gold
+instances there is left out, whether or not you predict it.
 
-**ST2** aggregates JSD hierarchically: mean JSD per (source, target) language
-pair → averaged across each target's eligible source partners → macro-averaged
-across target languages.
+**ST2** scores each triple by how likely your predicted `p_positive` makes the
+observed annotator counts. For a target with `n` annotators, `k` of them
+positive, and prediction `q`:
+
+```
+log loss = −( k·log₂(q) + (n − k)·log₂(1 − q) ) / n
+```
+
+with `q` clipped to `[0.01, 0.99]`. Most target distributions come from five
+annotators, so the observed proportion is a noisy sample of the true rate. Log
+loss is a proper scoring rule, so your expected score is best when you predict
+that true rate. Divergence against the observed proportion would instead reward
+overconfident predictions. JSD is still reported for comparison.
+
+Scores are aggregated hierarchically: mean per (source, target) language pair →
+averaged across each target's eligible source partners → macro-averaged across
+target languages with at least 5 eligible partners.
 
 ---
 
@@ -397,7 +424,7 @@ data.
 | Subtask | Baseline | Result |
 |---|---|---|
 | **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | reference scores released with the training data |
-| **ST2** | Blends the source distribution with a target-language prior, tuned to minimize JSD | mean JSD **0.08** vs. **0.10** for single-signal baselines |
+| **ST2** | Blends the source distribution with a target-language prior, weight tuned on training data | log loss **0.82** bits vs. **0.91** for the target-language prior alone and **1.11** for copying the source (development data) |
 
 
 ---
@@ -409,21 +436,21 @@ official [SemEval-2027 timeline](https://semeval.github.io/SemEval2027/).
 
 | Event | Date |
 |---|---|
-| Sample data ready | 8 August 2026 |
-| Training data ready | 8 September 2026 |
+| Training and development data | Available now |
+| Development phase opens on Codabench | October 2026 |
 | Evaluation period starts | 10 January 2027 |
 | Evaluation period ends | 31 January 2027 |
 | System paper submission *(tentative)* | February 2027 |
 | Notification to authors *(tentative)* | March 2027 |
 | Camera-ready due *(tentative)* | April 2027 |
-| SemEval-2027 workshop | Summer 2027 |
+| SemEval-2027 workshop | Summer 2027, co-located with ACL 2027 (Kyoto, 17–22 August 2027) |
 
 ### Phases
 
-**Data release (Aug–Sep 2026).** Sample data on 8 August, full training data on
-8 September, covering both subtasks across the 28 languages, with baseline code.
+**Data release (now).** Full training and development data for both subtasks
+across the 28 languages, with baseline code.
 
-**Development (Sep 2026 – Jan 2027).** Build and refine your systems. Results
+**Development (Oct 2026 – Jan 2027).** Build and refine your systems. Results
 are visible only to your team and the leaderboard stays hidden, so an early
 score cannot discourage anyone. Remember ST1 requires *both* a text-only and a
 multimodal run.
@@ -434,8 +461,8 @@ subtasks you entered. Only your final submission counts.
 **System papers (Feb 2027).** Required for inclusion in the official ranking,
 and peer-reviewed by other participating teams.
 
-**Workshop (Summer 2027).** Results presented at SemEval-2027, co-located with a
-major NLP conference.
+**Workshop (Summer 2027).** Results presented at SemEval-2027, co-located with
+ACL 2027 in Kyoto.
 
 ---
 
