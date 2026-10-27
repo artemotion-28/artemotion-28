@@ -27,6 +27,7 @@ emotional responses to WikiArt paintings from native speakers of 28 languages.
 - [Subtasks](#subtasks)
   - [ST1: Cross-Cultural Emotion Prediction](#st1-cross-cultural-emotion-prediction)
   - [ST2: Cross-Cultural Sentiment Divergence Prediction](#st2-cross-cultural-sentiment-divergence-prediction)
+  - [ST3: Image-Only Cross-Cultural Sentiment Prediction](#st3-image-only-cross-cultural-sentiment-prediction) *(proposed)*
 - [Languages](#languages)
 - [Getting the Data](#getting-the-data)
 - [Dataset Description](#dataset-description)
@@ -48,8 +49,8 @@ emotional responses to WikiArt paintings from native speakers of 28 languages.
 
 # Subtasks
 
-Two subtasks. **You may enter one or both**, and within a subtask you may
-work on any subset of the 28 languages.
+Two subtasks, plus a proposed third (ST3). **You may enter any combination**,
+and within a subtask you may work on any subset of the 28 languages.
 
 ## ST1: Cross-Cultural Emotion Prediction
 
@@ -236,6 +237,81 @@ mark-rothko_no-17-1961(1),English,Tamil,0.64
 `p_positive` is a float in `[0, 1]`; `p_negative` is implied as `1 − p_positive`.
 Every triple in the test file must appear exactly once.
 
+## ST3: Image-Only Cross-Cultural Sentiment Prediction
+
+> **Proposed — pending organizer agreement.** Not yet part of the competition.
+
+Given **only an artwork image** and a **target language**, predict the
+**proportion of that language's annotators who respond positively** to it.
+
+There is no caption and no other language's response — nothing but the
+painting and the name of the culture looking at it. ST1 gives systems the
+caption, which largely states the emotion; ST2 gives them other cultures'
+responses to the same painting. ST3 is the one subtask that asks the task's
+founding question directly: **do the visual cues for emotion carry the same
+meaning across cultures?**
+
+Predictions are made per **(image, language)** pair, using the same
+eligibility as ST2: pairs with **≥ 5 annotators**, **16,868** in the released
+data across 25 languages.
+
+### Several captions, one target
+
+A painting has several captions per language, often with different emotions.
+They are not inputs — they are counted to form the target. Each caption is one
+annotator; the gold value is the share of them that are positive (see
+[Labels](#labels-how-each-subtask-uses-them)). Disagreement is part of the
+target, not noise to be resolved.
+
+### Example
+
+*What you are given* — one row per (painting, language), nothing else:
+
+```
+painting,language
+vasily-perov_children-sleeping-1870,Hausa
+vasily-perov_children-sleeping-1870,Korean
+```
+
+*Where the gold comes from* (hidden) — the annotators' emotions for each
+language:
+
+| Language | Emotions given | Positive | Gold `p_positive` |
+|---|---|---|---|
+| Hausa | contentment, contentment, excitement, excitement, sadness | 4 of 5 | **0.80** |
+| Korean | contentment, sadness, sadness, sadness, disgust | 1 of 5 | **0.20** |
+
+The same image, read mostly positively by Hausa annotators and mostly
+negatively by Korean ones. A system must predict that difference from the
+painting alone — learning, from the training paintings, how each language's
+annotators tend to respond to what is depicted.
+
+### Staged release: ST3 is submitted first
+
+ST1 and ST2 test files contain captions and revealed distributions for the test
+paintings, which would give ST3's answers away. The evaluation period is
+therefore split:
+
+| Dates | Released | Submitted |
+|---|---|---|
+| 10–16 January 2027 | Test images and the ST3 (painting, language) list | ST3 predictions — final, locked |
+| 17–31 January 2027 | ST1 and ST2 test files | ST1 and ST2 predictions |
+
+ST3 submissions cannot be changed after 16 January.
+
+### Submission format
+
+A `.zip` containing `predictions.csv`, one row per pair in the test file:
+
+```csv
+painting,language,p_positive
+vasily-perov_children-sleeping-1870,Hausa,0.75
+vasily-perov_children-sleeping-1870,Korean,0.35
+```
+
+`p_positive` is a float in `[0, 1]`. Every pair in the test file must appear
+exactly once.
+
 ---
 
 # Languages
@@ -400,6 +476,7 @@ leaving them in will make your class counts disagree with the table above.
 |---|---|---|
 | **ST1** | **F1-Macro** over the eight emotion classes, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy |
 | **ST2** | **Log loss** on the target-language annotator counts, in bits per annotator (lower is better) | Jensen–Shannon Divergence; Pearson correlation of cross-lingual sentiment shift |
+| **ST3** *(proposed)* | **Log loss** on the language's annotator counts, as for ST2 | Jensen–Shannon Divergence |
 
 **ST1** rankings use the **multimodal** run. Every language contributes equally to the macro-average regardless of how many
 instances it has, and every emotion contributes equally regardless of how rare
@@ -426,6 +503,11 @@ Scores are aggregated hierarchically: mean per (source, target) language pair �
 averaged across each target's eligible source partners → macro-averaged across
 target languages with at least 5 eligible partners.
 
+**ST3** uses the same per-pair log loss. Scores are averaged per language, then
+macro-averaged across languages with at least 20 evaluation pairs, so that a
+language with only a handful of pairs cannot swing the ranking; smaller
+languages are still scored and reported.
+
 ---
 
 # Baselines
@@ -438,6 +520,7 @@ the table below once available.
 |---|---|---|
 | **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | to be published |
 | **ST2** | Blends the source distribution with a target-language prior, weight tuned on training data | log loss **0.82** bits vs. **0.91** for the target-language prior alone and **1.11** for copying the source (development data) |
+| **ST3** *(proposed)* | Logistic regression on frozen ViT image features and the target language, with language-specific image weights | log loss **0.82** bits vs. **0.87** for the target-language prior alone (development data) |
 
 
 ---
@@ -469,7 +552,10 @@ score cannot discourage anyone. Remember ST1 requires *both* a text-only and a
 multimodal run.
 
 **Evaluation (10–31 Jan 2027).** Test data is released and you submit for the
-subtasks you entered. Only your final submission counts.
+subtasks you entered. Only your final submission counts. If ST3 runs, the
+period is staged: ST3 is submitted and locked by 16 January, before the ST1
+and ST2 test files are released on 17 January (see
+[ST3](#st3-image-only-cross-cultural-sentiment-prediction)).
 
 **System papers (Feb 2027).** Required for inclusion in the official ranking,
 and peer-reviewed by other participating teams.
@@ -483,7 +569,7 @@ ACL 2027 in Kyoto.
 
 1. **Register** on Codabench when registration opens (link posted on the
    this repository).
-2. **Choose your subtasks** — one or both.
+2. **Choose your subtasks** — any combination.
 3. **Choose your languages** — any subset of the 28.
 4. **Download the data** from this repository.
 5. **Build your system.** For ST1, remember that *both* a text-only and a
@@ -529,8 +615,8 @@ access or use.
 
 # FAQs
 
-**Do I have to enter both subtasks?**
-No. One or both.
+**Do I have to enter every subtask?**
+No. Any combination.
 
 **Do I have to cover all 28 languages?**
 No, any subset.
