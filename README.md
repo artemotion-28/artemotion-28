@@ -1,6 +1,6 @@
 # ArtEmotion-28 @ SemEval-2027
 
-### Cross-Cultural Multimodal Sentiment Analysis Across 28 Languages
+### Cross-Cultural Multimodal Emotion and Sentiment Analysis Across 28 Languages
 
 [Subtasks](#subtasks) | [Get the Data](#getting-the-data) | [How to Participate](#how-to-participate) | [Important Dates](#important-dates) | [Ask a Question](https://github.com/artemotion-28/artemotion-28/issues)
 
@@ -67,11 +67,18 @@ labelled instances.
 **You must submit two runs: a text-only run and a multimodal (vision + text)
 run.** Requiring both is what makes the task measure the actual contribution of
 visual features in each language, rather than assuming multimodal is always
-better. Our baseline shows fusion can *underperform* text-only in many
-languages.
+better. An earlier binary-sentiment version of our baseline showed fusion
+*underperforming* text-only in many languages.
 
 > **Your multimodal run must genuinely condition on the image.** Runs that do
 > not measurably do so are excluded from the multimodal leaderboard.
+>
+> *How this is checked:* your system description paper must report an
+> image-shuffle ablation — your multimodal system's F1-Macro on development
+> data when each caption is paired with a randomly chosen *other* image. A
+> multimodal run whose score does not drop under shuffling is treated as not
+> conditioning on the image. The organizers may ask for the code or
+> predictions behind the ablation.
 
 ### Example
 
@@ -123,6 +130,11 @@ interpretation rather than classify sentiment within one language.
 so every evaluated distribution is statistically meaningful rather than a single
 noisy vote. This yields **16,868 eligible pairs** across 25 languages — see the
 per-language counts [below](#class-distribution-per-language).
+
+Four of those languages have very few eligible pairs (Darija 17, Emakhuwa 5,
+Kinyarwanda 9, Urdu 19), so as targets they are unlikely to reach the five
+source partners needed to count toward the ranking (see
+[Evaluation](#evaluation)). They are still scored and reported where possible.
 
 ### You are evaluated on unseen language pairs
 
@@ -207,7 +219,7 @@ disagrees.
 Copying the source distribution unchanged is the "no cultural shift" baseline.
 It scores **1.11 bits** of log loss on the development data — worse than
 predicting 0.5 everywhere (1.00), because a unanimous source becomes an
-overconfident prediction. The released baseline does better; see
+overconfident prediction. Our baseline does better; see
 [Baselines](#baselines).
 
 ### Submission format
@@ -418,12 +430,13 @@ target languages with at least 5 eligible partners.
 
 # Baselines
 
-Baselines for both subtasks are implemented and released with the training
-data.
+Baselines for both subtasks are implemented. Baseline code and ST1 reference
+scores will be published in this repository; the ST1 scores will be added to
+the table below once available.
 
 | Subtask | Baseline | Result |
 |---|---|---|
-| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | reference scores released with the training data |
+| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | to be published |
 | **ST2** | Blends the source distribution with a target-language prior, weight tuned on training data | log loss **0.82** bits vs. **0.91** for the target-language prior alone and **1.11** for copying the source (development data) |
 
 
@@ -448,7 +461,7 @@ official [SemEval-2027 timeline](https://semeval.github.io/SemEval2027/).
 ### Phases
 
 **Data release (now).** Full training and development data for both subtasks
-across the 28 languages, with baseline code.
+across the 28 languages. Baseline code follows in this repository.
 
 **Development (Oct 2026 – Jan 2027).** Build and refine your systems. Results
 are visible only to your team and the leaderboard stays hidden, so an early
@@ -528,9 +541,11 @@ The primary ranking uses the multimodal run.
 
 **My multimodal system barely differs from my text-only one. Is that a problem?**
 Yes, potentially. Runs that do not measurably condition on the image are
-excluded from the multimodal leaderboard. Our own baseline shows fusion
-underperforming text-only in 18 of 28 languages, so a system that quietly
-ignores the image is a real failure mode we check for.
+excluded from the multimodal leaderboard. In an earlier binary-sentiment
+version of our baseline, fusion underperformed text-only in 18 of 28 languages,
+so a system that quietly ignores the image is a real failure mode we check for —
+using the image-shuffle ablation described under
+[ST1](#st1-cross-cultural-emotion-prediction).
 
 **Can I use LLMs or additional data?**
 Guidance will be published with the competition platform details. Any external
