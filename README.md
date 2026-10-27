@@ -292,7 +292,7 @@ therefore split, with ST3 first:
 | 10–16 January 2027 | Test images and the ST3 (painting, language) list | ST3 predictions — final, locked |
 | 17–31 January 2027 | ST1 and ST2 test files | ST1 and ST2 predictions |
 
-ST3 submissions cannot be changed after 16 January.
+ST3 submissions close at 23:59 UTC on 16 January and cannot be changed afterwards.
 
 ### Submission format
 
@@ -545,8 +545,10 @@ the table below once available.
 
 # Important Dates
 
-All deadlines are **11:59 PM AoE (Anywhere on Earth)**. These follow the
-official [SemEval-2027 timeline](https://semeval.github.io/SemEval2027/).
+**Submission deadlines on Codabench are 23:59 UTC** on the date shown, since
+Codabench closes phases at midnight UTC. Other deadlines (papers, reviews)
+are **11:59 PM AoE (Anywhere on Earth)**. The schedule follows the official
+[SemEval-2027 timeline](https://semeval.github.io/SemEval2027/).
 
 | Event | Date |
 |---|---|
