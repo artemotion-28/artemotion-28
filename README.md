@@ -79,8 +79,16 @@ better. An earlier binary-sentiment version of our baseline showed fusion
 > which; predict every row as normal, with the same system. The scorer compares
 > your multimodal run's F1-Macro on the real rows with its F1-Macro on the
 > decoys. A run that scores no worse on the decoys is not conditioning on the
-> image. Only real rows count toward your scores. The organizers may ask for
-> the code behind any submission.
+> image. Only real rows count toward your scores.
+>
+> The same decoys check the other direction: a real row and its decoy differ
+> only in the image, so your **text-only run must give them the same label**.
+> Text-only runs that do not (below 99% agreement) are excluded from the
+> text-only results. Keep text-only inference deterministic.
+>
+> The organizers may ask top-ranked teams for their inference code and models,
+> and rerun them on a fresh test file with new decoys. Systems whose scores
+> cannot be reproduced are removed from the ranking.
 
 ### Example
 
@@ -538,7 +546,8 @@ using the decoy rows described under
 **Why does the ST1 test file repeat captions?**
 Each real instance has a decoy: the same caption with a different painting's
 image. Predict every row normally. Decoys never count toward your scores; they
-only measure whether your multimodal run uses the image.
+only measure whether your multimodal run uses the image and whether your
+text-only run ignores it.
 
 **Can I use LLMs or additional data?**
 Guidance will be published with the competition platform details. Any external
