@@ -343,11 +343,24 @@ The repository is ~130 MB and needs no Git LFS.
 annotations/artelingo28_train_val.csv   173,745 annotations (train + val)
 images/                                 1,658 WikiArt paintings
 scripts/verify_dataset.py               integrity checks
+phase_inputs/                           the files you predict for, per subtask and phase
+starter_kit/                            notebook with baselines for all three subtasks
 ```
 
-**Test data** is released separately during the evaluation phase: test images
-and the ST3 list on 10 January 2027, the ST1 and ST2 test files on 17 January.
-The 342 remaining paintings are held back with it.
+All data is in this repository; Codabench is only for submitting predictions.
+**Train** on `annotations/` (the `train` split). **Predict** for the input file of
+the phase you are submitting to: `phase_inputs/dev/stN_test.csv` for the
+Development phase (the `val` paintings, available now), and
+`phase_inputs/test/stN_test.csv` for the Evaluation phase.
+
+**Starter kit.** [`starter_kit/starter_kit.ipynb`](starter_kit/starter_kit.ipynb)
+is a minimal starting point: it loads the data, trains a very simple baseline
+for each subtask, checks it on the `val` split, and writes a submission zip for
+each subtask's Development phase.
+
+**Test data** is added to `phase_inputs/test/` during the evaluation phase:
+the test images and the ST3 file on 10 January 2027, the ST1 and ST2 files on
+17 January. The 342 remaining paintings are held back until then.
 
 **Competition registration** will be hosted on Codabench. The link is posted on
 this repository and announced here when
@@ -575,7 +588,8 @@ ACL 2027 in Kyoto.
 2. **Choose your subtasks** — any combination.
 3. **Choose your languages** — any subset of the 28.
 4. **Download the data** from this repository.
-5. **Build your system.** For ST1, remember that *both* a text-only and a
+5. **Build your system.** The [starter kit](starter_kit/starter_kit.ipynb) is
+   a working end-to-end example. For ST1, remember that *both* a text-only and a
    multimodal run are required.
 6. **Submit predictions** during the evaluation period: ST3 by 16 January,
    ST1 and ST2 between 17 and 31 January 2027.
