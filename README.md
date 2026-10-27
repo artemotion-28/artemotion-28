@@ -1,4 +1,4 @@
-# ArtEmotion-28 @ SemEval-2027
+# SemEval-2027 Task 12: ArtEmotion-28
 
 ### Cross-Cultural Multimodal Emotion and Sentiment Analysis Across 28 Languages
 
