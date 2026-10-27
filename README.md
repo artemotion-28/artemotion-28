@@ -362,9 +362,13 @@ each subtask's Development phase.
 the test images and the ST3 file on 10 January 2027, the ST1 and ST2 files on
 17 January. The 342 remaining paintings are held back until then.
 
-**Competition registration** will be hosted on Codabench. The link is posted on
-this repository and announced here when
-registration opens.
+**Competition registration** is on Codabench, one competition per subtask:
+
+| Subtask | Codabench |
+|---|---|
+| ST1: Cross-Cultural Emotion Prediction | [competitions/18466](https://www.codabench.org/competitions/18466/) |
+| ST2: Cross-Cultural Sentiment Divergence Prediction | [competitions/18467](https://www.codabench.org/competitions/18467/) |
+| ST3: Image-Only Cross-Cultural Sentiment Prediction | [competitions/18468](https://www.codabench.org/competitions/18468/) |
 
 ---
 
@@ -547,7 +551,7 @@ official [SemEval-2027 timeline](https://semeval.github.io/SemEval2027/).
 | Event | Date |
 |---|---|
 | Training and development data | Available now |
-| Development phase opens on Codabench | October 2026 |
+| Development phase opens on Codabench | 24 October 2026 (open now) |
 | Evaluation period starts; ST3 test released | 10 January 2027 |
 | ST3 submissions close (locked) | 16 January 2027 |
 | ST1 and ST2 test files released | 17 January 2027 |
@@ -583,8 +587,10 @@ ACL 2027 in Kyoto.
 
 # How to Participate
 
-1. **Register** on Codabench when registration opens (link posted on the
-   this repository).
+1. **Register** on Codabench for each subtask you enter:
+   [ST1](https://www.codabench.org/competitions/18466/),
+   [ST2](https://www.codabench.org/competitions/18467/),
+   [ST3](https://www.codabench.org/competitions/18468/).
 2. **Choose your subtasks** — any combination.
 3. **Choose your languages** — any subset of the 28.
 4. **Download the data** from this repository.
