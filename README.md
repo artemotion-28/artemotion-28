@@ -73,12 +73,14 @@ better. An earlier binary-sentiment version of our baseline showed fusion
 > **Your multimodal run must genuinely condition on the image.** Runs that do
 > not measurably do so are excluded from the multimodal leaderboard.
 >
-> *How this is checked:* your system description paper must report an
-> image-shuffle ablation — your multimodal system's F1-Macro on development
-> data when each caption is paired with a randomly chosen *other* image. A
-> multimodal run whose score does not drop under shuffling is treated as not
-> conditioning on the image. The organizers may ask for the code or
-> predictions behind the ablation.
+> *How this is checked:* the test file contains, alongside every real
+> instance, a **decoy** — the same caption paired with a different painting's
+> image. Rows are shuffled and ids are opaque, so you cannot tell which is
+> which; predict every row as normal, with the same system. The scorer compares
+> your multimodal run's F1-Macro on the real rows with its F1-Macro on the
+> decoys. A run that scores no worse on the decoys is not conditioning on the
+> image. Only real rows count toward your scores. The organizers may ask for
+> the code behind any submission.
 
 ### Example
 
@@ -104,7 +106,8 @@ A `.zip` containing **both** files at the top level:
 predictions_text.csv          predictions_multimodal.csv
 ```
 
-Each with the header `id,label`, covering every id in the test file:
+Each with the header `id,label`, covering every id in the test file, decoys
+included:
 
 ```csv
 id,label
@@ -136,27 +139,13 @@ Kinyarwanda 9, Urdu 19), so as targets they are unlikely to reach the five
 source partners needed to count toward the ranking (see
 [Evaluation](#evaluation)). They are still scored and reported where possible.
 
-### You are evaluated on unseen language pairs
+### You are evaluated on unseen artworks
 
-Of the 572 ordered language pairs in the data:
-
-| | Pairs | |
-|---|---|---|
-| **Training** | 250 | supervision provided, with both distributions |
-| **Development** | 151 | held out, released for the dev phase |
-| **Evaluation** | 171 | held out, announced at evaluation |
-
-Development and evaluation use **different** pairs, so tuning on dev pairs does
-not make the evaluation pairs seen.
-
-Every held-out pair's two languages still appear in training via *other* pairs —
-this is an unseen **pair**, not an unseen language. You will have seen Swahili
-and Tamil; you will not have seen `Swahili → Tamil`.
-
-Paintings are held out as well: training distributions come from the train
-split, evaluation from artworks you have never seen. Without that, a painting's
-target distribution could be looked up from a different training pair on the
-same painting.
+Training covers **every** ordered language pair (572 in the data). What is held
+out is the artworks: training distributions come from the train split, and
+evaluation from **342 paintings whose annotations have never been released**. A
+painting's responses in one language cannot be looked up from another, because
+none of its responses are public.
 
 Within an evaluation artwork, languages are split at random into **revealed**
 and **hidden**. Revealed languages appear as sources; hidden languages are only
@@ -164,9 +153,8 @@ ever targets, and their distributions appear nowhere in the input. You may use
 *every* revealed distribution for an artwork when predicting any of its targets,
 not only the source named on the row.
 
-Together these make the subtask a test of modelling cultural shift rather than
-recall — and they are why a model trained on the entire published dataset gains
-little here: the evaluation distributions have never been released.
+Together these make the subtask a test of modelling how cultures respond to an
+artwork you have never seen, rather than recall.
 
 ### Example
 
@@ -217,7 +205,7 @@ Predicting `1.0` or `0.0` is heavily penalised whenever even one annotator
 disagrees.
 
 Copying the source distribution unchanged is the "no cultural shift" baseline.
-It scores **1.11 bits** of log loss on the development data — worse than
+It scores **1.05 bits** of log loss on the development data — worse than
 predicting 0.5 everywhere (1.00), because a unanimous source becomes an
 overconfident prediction. Our baseline does better; see
 [Baselines](#baselines).
@@ -437,7 +425,7 @@ the table below once available.
 | Subtask | Baseline | Result |
 |---|---|---|
 | **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | to be published |
-| **ST2** | Blends the source distribution with a target-language prior, weight tuned on training data | log loss **0.82** bits vs. **0.91** for the target-language prior alone and **1.11** for copying the source (development data) |
+| **ST2** | Blends the source distribution with a target-language prior, weight tuned on training data | log loss **0.80** bits vs. **0.88** for the target-language prior alone and **1.05** for copying the source (development data) |
 
 
 ---
@@ -544,8 +532,13 @@ Yes, potentially. Runs that do not measurably condition on the image are
 excluded from the multimodal leaderboard. In an earlier binary-sentiment
 version of our baseline, fusion underperformed text-only in 18 of 28 languages,
 so a system that quietly ignores the image is a real failure mode we check for —
-using the image-shuffle ablation described under
+using the decoy rows described under
 [ST1](#st1-cross-cultural-emotion-prediction).
+
+**Why does the ST1 test file repeat captions?**
+Each real instance has a decoy: the same caption with a different painting's
+image. Predict every row normally. Decoys never count toward your scores; they
+only measure whether your multimodal run uses the image.
 
 **Can I use LLMs or additional data?**
 Guidance will be published with the competition platform details. Any external
