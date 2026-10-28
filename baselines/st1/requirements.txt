@@ -1,0 +1,7 @@
+torch>=2.1
+transformers>=4.46,<5
+accelerate>=0.26
+scikit-learn
+pandas
+numpy
+pillow
