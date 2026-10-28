@@ -351,6 +351,7 @@ images/                                 1,658 WikiArt paintings
 scripts/verify_dataset.py               integrity checks
 phase_inputs/                           the files you predict for, per subtask and phase
 starter_kit/                            notebook with baselines for all three subtasks
+baselines/st1/                          the ST1 reference baseline (XLM-R + ViT)
 ```
 
 All data is in this repository; Codabench is only for submitting predictions.
@@ -536,7 +537,9 @@ evaluation pairs.
 
 # Baselines
 
-Baselines for all three subtasks are implemented. Baseline code will be
+Baselines for all three subtasks are implemented. The ST1 baseline's code is
+in [`baselines/st1/`](baselines/st1/), with instructions for training it and
+producing a Codabench submission; code for the other baselines will be
 published in this repository.
 
 | Subtask | Baseline | Result |
@@ -571,7 +574,9 @@ are **11:59 PM AoE (Anywhere on Earth)**. The schedule follows the official
 ### Phases
 
 **Data release (now).** Full training and development data for all subtasks
-across the 28 languages. Baseline code follows in this repository.
+across the 28 languages. The ST1 baseline's code is in
+[`baselines/st1/`](baselines/st1/); code for the other baselines follows in
+this repository.
 
 **Development (Oct 2026 – Jan 2027).** Build and refine your systems. Results
 are visible only to your team and the leaderboard stays hidden, so an early
