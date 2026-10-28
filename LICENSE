@@ -1,7 +1,7 @@
 ArtEmotion-28 public data release
 =================================
 
-This repository contains two kinds of material, under different terms.
+This repository contains three kinds of material, under different terms.
 
 
 1. ANNOTATIONS  --  Creative Commons Attribution 4.0 International (CC BY 4.0)
@@ -46,7 +46,14 @@ If you are a rights holder and object to an image being mirrored here, please
 contact the task organizers and it will be removed.
 
 
-3. NO WARRANTY
+3. BASELINE CODE  --  MIT License
+------------------------------------------------------------------------------
+
+The code under baselines/ is released by the ArtEmotion-28 organizers under
+the MIT License. The full text is in baselines/LICENSE.
+
+
+4. NO WARRANTY
 ------------------------------------------------------------------------------
 
 The organizers and their affiliated institutions provide no warranties as to

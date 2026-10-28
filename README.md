@@ -759,7 +759,7 @@ organizers adhere to the [ACL Code of Ethics](https://www.aclweb.org/portal/cont
 
 # License
 
-**This repository contains two kinds of material under different terms.**
+**This repository contains three kinds of material under different terms.**
 
 **Annotations — CC BY 4.0.** Everything in `annotations/` (captions, emotion
 labels, splits, metadata) is released by the ArtEmotion-28 organizers under the
@@ -775,5 +775,8 @@ CC BY 4.0 grant and are not relicensed by us. They are mirrored here purely so
 participants need not re-scrape them; all rights remain with the original rights
 holders. If you intend to use the images beyond research on this task, consult
 the terms applying to each work at its source.
+
+**Baseline code — MIT.** The code in `baselines/` is released under the
+[MIT License](baselines/LICENSE).
 
 See [LICENSE](LICENSE) for the full statement.
