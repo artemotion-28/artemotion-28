@@ -68,8 +68,14 @@ labelled instances.
 **You must submit two runs: a text-only run and a multimodal (vision + text)
 run.** Requiring both is what makes the task measure the actual contribution of
 visual features in each language, rather than assuming multimodal is always
-better. An earlier binary-sentiment version of our baseline showed fusion
-*underperforming* text-only in many languages.
+better. In our baseline, fusion *underperforms* text-only in 19 of the 28
+languages (see [Baselines](#baselines)).
+
+> **The open challenge: make the image help.** Our multimodal baseline scores
+> *below* its own text-only counterpart (F1-Macro 0.535 vs. 0.550). A system
+> whose multimodal run beats its text-only run — and in which languages it
+> does — is a central result of this subtask, and every team's gain is
+> reported alongside the ranking.
 
 > **Your multimodal run must genuinely condition on the image.** Runs that do
 > not measurably do so are excluded from the multimodal leaderboard.
@@ -487,7 +493,7 @@ leaving them in will make your class counts disagree with the table above.
 
 | Subtask | Primary metric | Also reported |
 |---|---|---|
-| **ST1** | **F1-Macro** over the eight emotion classes, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy |
+| **ST1** | **F1-Macro** over the eight emotion classes, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy; multimodal gain over text-only (F1-Macro difference), overall and per language |
 | **ST2** | **Log loss** on the target-language annotator counts, in bits per annotator (lower is better) | Jensen–Shannon Divergence; Pearson correlation of cross-lingual sentiment shift |
 | **ST3** | **Within-painting cultural contrast**: Pearson correlation between predicted and observed `p_positive` across each painting's languages, averaged over paintings (higher is better) | Log loss on the language's annotator counts, as for ST2 |
 
@@ -530,13 +536,12 @@ evaluation pairs.
 
 # Baselines
 
-Baselines for all three subtasks are implemented. Baseline code and ST1 reference
-scores will be published in this repository; the ST1 scores will be added to
-the table below once available.
+Baselines for all three subtasks are implemented. Baseline code will be
+published in this repository.
 
 | Subtask | Baseline | Result |
 |---|---|---|
-| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | to be published |
+| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | F1-Macro **0.535** multimodal vs. **0.550** text-only; **0.524** for the multimodal model with each caption given a different painting's image. Multimodal beats text-only in 9 of 28 languages (development data) |
 | **ST2** | Blends the source distribution with a target-language prior, weight tuned on training data | log loss **0.80** bits vs. **0.88** for the target-language prior alone and **1.05** for copying the source (development data) |
 | **ST3** | Logistic regression on frozen CLIP ViT-B/32 image features and the target language, with language-specific image weights | cultural contrast **0.45** vs. **0.37** when the image means the same for every language and **0.36** for the target-language prior alone (development data) |
 
@@ -653,9 +658,10 @@ The primary ranking uses the multimodal run.
 
 **My multimodal system barely differs from my text-only one. Is that a problem?**
 Yes, potentially. Runs that do not measurably condition on the image are
-excluded from the multimodal leaderboard. In an earlier binary-sentiment
-version of our baseline, fusion underperformed text-only in 18 of 28 languages,
-so a system that quietly ignores the image is a real failure mode we check for —
+excluded from the multimodal leaderboard. In our own baseline, fusion
+underperforms text-only in 19 of 28 languages, and giving each caption a
+different painting's image costs it only about one point of F1 — so a system
+that quietly ignores the image is a real failure mode we check for —
 using the decoy rows described under
 [ST1](#st1-cross-cultural-emotion-prediction).
 
