@@ -18,9 +18,13 @@ official ST1 metric.
 | Text-only | 0.550 |
 | Multimodal | 0.535 |
 | Multimodal, on the decoy rows of the dev input file | 0.522 |
+| Multimodal, val images shuffled at random (`summarize.py`) | 0.524 |
 | Image-only | 0.161 |
 
-Multimodal beats text-only in 9 of the 28 languages. On the dev input file the
+The two shuffled-image rows differ because the decoys always pair a caption
+with a *different* painting's image, as Codabench's image check does, while a
+random shuffle sometimes leaves an image with its own painting. Multimodal
+beats text-only in 9 of the 28 languages. On the dev input file the
 text-only run labels every caption and its decoy identically, and the
 multimodal run scores lower on decoys than on real rows, so both pass the
 checks described in the main README.

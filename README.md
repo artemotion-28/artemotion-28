@@ -351,7 +351,7 @@ images/                                 1,658 WikiArt paintings
 scripts/verify_dataset.py               integrity checks
 phase_inputs/                           the files you predict for, per subtask and phase
 starter_kit/                            notebook with baselines for all three subtasks
-baselines/st1/                          the ST1 reference baseline (XLM-R + ViT)
+baselines/                              reference baselines for ST1, ST2 and ST3
 ```
 
 All data is in this repository; Codabench is only for submitting predictions.
@@ -537,14 +537,14 @@ evaluation pairs.
 
 # Baselines
 
-Baselines for all three subtasks are implemented. The ST1 baseline's code is
-in [`baselines/st1/`](baselines/st1/), with instructions for training it and
-producing a Codabench submission; code for the other baselines will be
-published in this repository.
+Baselines for all three subtasks are implemented, with code in
+[`baselines/st1/`](baselines/st1/), [`baselines/st2/`](baselines/st2/) and
+[`baselines/st3/`](baselines/st3/). Each folder explains how to train the
+baseline and produce a Codabench submission.
 
 | Subtask | Baseline | Result |
 |---|---|---|
-| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | F1-Macro **0.535** multimodal vs. **0.550** text-only; **0.524** for the multimodal model with each caption given a different painting's image. Multimodal beats text-only in 9 of 28 languages (development data) |
+| **ST1** | Fine-tuned XLM-R (text) + ViT (image), concatenation fusion, trained to convergence with early stopping | F1-Macro **0.535** multimodal vs. **0.550** text-only; **0.522** for the multimodal run on the decoy rows of the development input file, where each caption is paired with a different painting's image. Multimodal beats text-only in 9 of 28 languages (development data) |
 | **ST2** | Blends the source distribution with a target-language prior, weight tuned on training data | log loss **0.80** bits vs. **0.88** for the target-language prior alone and **1.05** for copying the source (development data) |
 | **ST3** | Logistic regression on frozen CLIP ViT-B/32 image features and the target language, with language-specific image weights | cultural contrast **0.45** vs. **0.37** when the image means the same for every language and **0.36** for the target-language prior alone (development data) |
 
@@ -574,9 +574,8 @@ are **11:59 PM AoE (Anywhere on Earth)**. The schedule follows the official
 ### Phases
 
 **Data release (now).** Full training and development data for all subtasks
-across the 28 languages. The ST1 baseline's code is in
-[`baselines/st1/`](baselines/st1/); code for the other baselines follows in
-this repository.
+across the 28 languages. Baseline code for all three subtasks
+is in [`baselines/`](baselines/).
 
 **Development (Oct 2026 – Jan 2027).** Build and refine your systems. Results
 are visible only to your team and the leaderboard stays hidden, so an early
