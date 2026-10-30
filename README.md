@@ -494,7 +494,7 @@ leaving them in will make your class counts disagree with the table above.
 
 | Subtask | Primary metric | Also reported |
 |---|---|---|
-| **ST1** | **F1-Macro** over the eight emotion classes, computed per language then macro-averaged across all 28 | F1-Weighted, Accuracy; multimodal gain over text-only (F1-Macro difference), overall and per language |
+| **ST1** | **F1-Macro** over the eight emotion classes, computed per language then macro-averaged across languages (see *Languages scored at test time* below) | F1-Weighted, Accuracy; multimodal gain over text-only (F1-Macro difference), overall and per language |
 | **ST2** | **Log loss** on the target-language annotator counts, in bits per annotator (lower is better) | Jensen–Shannon Divergence; Pearson correlation of cross-lingual sentiment shift |
 | **ST3** | **Within-painting cultural contrast**: Pearson correlation between predicted and observed `p_positive` across each painting's languages, averaged over paintings (higher is better) | Log loss on the language's annotator counts, as for ST2 |
 
@@ -532,6 +532,19 @@ paintings whose observed proportions are all equal are skipped. Log loss, which
 does check that predictions are realistic proportions, is reported alongside
 but not ranked: averaged per language, then across languages with at least 20
 evaluation pairs.
+
+### Languages scored at test time
+
+The English, Arabic and Chinese annotations of the test paintings are already
+public, in the original [ArtELingo](https://github.com/Vision-CAIR/artelingo)
+release. Those three languages are therefore **not scored in the evaluation
+phase**: they are left out of the ST1 and ST3 test files, and in ST2 they may
+appear as revealed sources but never as targets. The test set covers **21
+languages**; Kazakh, IsiNdebele, IsiXhosa and Emakhuwa have no test
+annotations. The development phase scores every language in the `val` split.
+
+Do not use annotations of the evaluation paintings from any other source,
+including the original ArtELingo release.
 
 ---
 
