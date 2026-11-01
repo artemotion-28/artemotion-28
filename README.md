@@ -158,9 +158,9 @@ source partners needed to count toward the ranking (see
 
 Training covers **every** ordered language pair (572 in the data). What is held
 out is the artworks: training distributions come from the train split, and
-evaluation from **342 paintings whose annotations have never been released**. A
-painting's responses in one language cannot be looked up from another, because
-none of its responses are public.
+evaluation from **held-back paintings whose annotations in the scored
+languages have never been released**. A painting's responses in one language
+cannot be looked up from another, because none of them are public.
 
 Within an evaluation artwork, languages are split at random into **revealed**
 and **hidden**. Revealed languages appear as sources; hidden languages are only
@@ -367,7 +367,9 @@ each subtask's Development phase.
 
 **Test data** is added to `phase_inputs/test/` during the evaluation phase:
 the test images and the ST3 file on 10 January 2027, the ST1 and ST2 files on
-17 January. The 342 remaining paintings are held back until then.
+17 January. The evaluation uses 242 held-back paintings. ST3 uses all of them;
+ST1 and ST2 each use a different half, because the ST1 file publishes captions
+that would otherwise reveal the hidden ST2 targets on the same paintings.
 
 **Competition registration** is on Codabench, one competition per subtask:
 
@@ -539,9 +541,9 @@ The English, Arabic and Chinese annotations of the test paintings are already
 public, in the original [ArtELingo](https://github.com/Vision-CAIR/artelingo)
 release. Those three languages are therefore **not scored in the evaluation
 phase**: they are left out of the ST1 and ST3 test files, and in ST2 they may
-appear as revealed sources but never as targets. The test set covers **21
-languages**; Kazakh, IsiNdebele, IsiXhosa and Emakhuwa have no test
-annotations. The development phase scores every language in the `val` split.
+appear as revealed sources but never as targets. The test sets cover **21
+languages** in ST3, 20 in ST1 and 19 ST2 target languages; the remaining
+languages have too few test annotations. The development phase scores every language in the `val` split.
 
 Do not use annotations of the evaluation paintings from any other source,
 including the original ArtELingo release.
