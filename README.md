@@ -83,10 +83,12 @@ languages (see [Baselines](#baselines)).
 > *How this is checked:* the test file contains, alongside every real
 > instance, a **decoy** — the same caption paired with a different painting's
 > image. Rows are shuffled and ids are opaque, so you cannot tell which is
-> which; predict every row as normal, with the same system. The scorer compares
-> your multimodal run's F1-Macro on the real rows with its F1-Macro on the
-> decoys. A run that scores no worse on the decoys is not conditioning on the
-> image. Only real rows count toward your scores.
+> which; predict every row as normal, with the same system. The scorer looks
+> at the pairs your multimodal run labels correctly with only one of the two
+> images. A system that uses the image gets the real row right more often; one
+> that ignores it gets either right equally often. The run passes if
+> real-image wins outnumber wrong-image wins significantly (one-sided McNemar
+> test, p < 0.05). Only real rows count toward your scores.
 >
 > The same decoys check the other direction: a real row and its decoy differ
 > only in the image, so your **text-only run must give them the same label**.
