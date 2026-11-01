@@ -93,9 +93,12 @@ languages (see [Baselines](#baselines)).
 > Text-only runs that do not (below 99% agreement) are excluded from the
 > text-only results. Keep text-only inference deterministic.
 >
-> The organizers may ask top-ranked teams for their inference code and models,
-> and rerun them on a fresh test file with new decoys. Systems whose scores
-> cannot be reproduced are removed from the ranking.
+> The organizers review all submissions for signs that a run does not
+> genuinely use the image, beyond the published checks. They may ask any
+> team, including every top-ranked team and any team whose runs are flagged in
+> that review, for its inference code and models, and rerun them on a fresh
+> test file with new decoys. Systems whose scores cannot be reproduced are
+> removed from the ranking.
 
 ### Example
 
