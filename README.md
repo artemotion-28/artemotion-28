@@ -8,7 +8,7 @@
 
 Multimodal AI systems that combine vision and language are increasingly deployed
 for emotion understanding worldwide. These systems typically assume that visual
-features for emotion recognition transfer universally across cultures — an
+features for emotion recognition transfer universally across cultures, an
 assumption rooted in predominantly Western training data. Cultural psychology
 research has long established that emotional expression and perception vary
 significantly between cultures.
