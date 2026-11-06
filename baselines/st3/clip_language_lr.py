@@ -36,10 +36,12 @@ FEATURES = "results/clip_image_features.npz"
 
 
 def image_features(names):
-    """L2-normalised CLIP embeddings, keyed by image path."""
+    """L2-normalised CLIP embeddings, keyed by image path. The cache is reused
+    only if it covers every image needed (test images arrive later)."""
     if os.path.exists(FEATURES):
         cached = np.load(FEATURES, allow_pickle=True)
-        return dict(zip(cached["names"], cached["features"]))
+        if set(names) <= set(cached["names"]):
+            return dict(zip(cached["names"], cached["features"]))
     device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     model = CLIPModel.from_pretrained(CLIP_MODEL).to(device).eval()
     processor = CLIPProcessor.from_pretrained(CLIP_MODEL)
