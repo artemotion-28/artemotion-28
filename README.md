@@ -748,7 +748,7 @@ dataset:
 
 # Organizers
 
-Contact us at [SemEval Task-28 Team](mailto:artemotion-28@googlegroups.com). 
+Contact us at [SemEval Task-12 Team](mailto:artemotion-28@googlegroups.com). 
 
 | Organizer | Affiliation | Role |
 |---|---|---|
