@@ -748,6 +748,8 @@ dataset:
 
 # Organizers
 
+Contact us at [Support Team](mailto:artemotion-28@googlegroups.com). 
+
 | Organizer | Affiliation | Role |
 |---|---|---|
 | Youssef Mohamed | KAUST | Lead Organizer |
