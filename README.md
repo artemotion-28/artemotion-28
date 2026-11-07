@@ -528,7 +528,7 @@ overconfident predictions. JSD is still reported for comparison.
 
 Scores are aggregated hierarchically: mean per (source, target) language pair →
 averaged across each target's eligible source partners → macro-averaged across
-target languages with at least 5 eligible partners.
+target languages with at least 5 eligible partners on at least 3 paintings.
 
 **ST3** ranks by whether a system knows which cultures read the *same*
 painting more positively than others. For each test painting with at least 3
@@ -547,8 +547,16 @@ public, in the original [ArtELingo](https://github.com/Vision-CAIR/artelingo)
 release. Those three languages are therefore **not scored in the evaluation
 phase**: they are left out of the ST1 and ST3 test files, and in ST2 they may
 appear as revealed sources but never as targets. The test sets cover **21
-languages** in ST3, 20 in ST1 and 19 ST2 target languages; the remaining
-languages have too few test annotations. The development phase scores every language in the `val` split.
+languages** in ST3, 20 in ST1 and 20 ST2 target languages; the remaining
+languages have too few test annotations.
+
+A language with very little test data would swing the ranking on a handful of
+items, so in ST1 and ST2 it counts towards the ranking only if it has **at least
+50 test captions** (ST1) or **at least 5 source partners on at least 3 test
+paintings** (ST2, as a target). Smaller languages stay in the test file and are
+scored, shown as unranked in the per-language results. 18 languages are ranked
+in each of ST1 and ST2. The development phase scores every language in the
+`val` split, and every one meets these minimums there.
 
 Do not use annotations of the evaluation paintings from any other source,
 including the original ArtELingo release.
